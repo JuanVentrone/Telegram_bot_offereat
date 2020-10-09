@@ -1,6 +1,11 @@
 import logging
+import pandas as pd
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
+
+
+data = pd.read_csv("ig_scrapper/database/uni data/data_v1.csv")
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -13,7 +18,7 @@ logger = logging.getLogger(__name__)
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
     """Veamos que es lo que sucede"""
-    update.message.reply_text('Hola, esto es una prueba, ornella')
+    update.message.reply_text(data['content'][0])
 
 
 def help_command(update, context):
