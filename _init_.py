@@ -9,7 +9,14 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 
 # Reading Data
 data = pd.read_csv("ig_scrapper/database/uni data/data_v1.01.csv")
-# selection food
+
+# Temporal Data
+class pt:
+    ix = 0
+    temp = pd.DataFrame()
+    last = 0
+
+# Food Selection
 class fd:
 
     postre =     ('clasificacion', 'postre')
@@ -17,8 +24,9 @@ class fd:
     gourmet =    ('clasificacion', 'gourmet')
     chatarra =   ('clasificacion', 'chatarra')
     combo =      ('combo', True)
-    pasapalos =  ('clasificacion', 'pasapalo')
+    pasapalo =  ('clasificacion', 'pasapalo')
     cumple =     ('Tortas',True)
+    
 
 
 
@@ -103,23 +111,22 @@ def clasificacion_data(data, columna, seleccion):
     return ix, temp
 
 def next_fun( update, context, 
-                        x, temp, final ):
+                        nx, temp, last):
     
     
     ruta = 'ig_scrapper/database/images/'
-    url_ig = 'https://www.instagram.com' + str(temp['user url'][x])
+    url_ig = 'https://www.instagram.com' + str(temp['user url'][nx])
     
-
-    if x == final:
+    if nx == last:
 
         keyboard = mini_menu(update,context)
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.callback_query.message.reply_text('Ups😵, por ahora mi data es limitada😓', reply_markup=reply_markup)
 
     else:
-        context.bot.send_photo(chat_id=update.effective_chat.id, photo = open( ruta + str(temp['img name'][x]),'rb'))
+        context.bot.send_photo(chat_id=update.effective_chat.id, photo = open( ruta + str(temp['img name'][nx]),'rb'))
         
-        if temp['ws'][x] is False:
+        if temp['ws'][nx] is 'False':
             keyboard = [
                 
             [InlineKeyboardButton("Instagram", url=url_ig)],
@@ -129,7 +136,7 @@ def next_fun( update, context,
                 
             ]
         else:
-            url_ws = 'https://api.whatsapp.com/send?phone='+ str(temp['ws'][x]) +'&text=Hola,%20Te%20encontre%20gracias%20Offer_Eat%20Telegram'
+            url_ws = 'https://api.whatsapp.com/send?phone=+58'+ str(temp['ws'][nx]) +'&text=Hola,%20Te%20encontre%20gracias%20Offer_Eat%20Telegram'
             keyboard = [
                     
             [InlineKeyboardButton("Whatsapp", url=url_ws),
@@ -143,10 +150,10 @@ def next_fun( update, context,
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         # some Items doesn't have content
-        if temp['content'][x] is False:
-            update.callback_query.message.reply_text('Cuenta: '+ str(temp['user name'][x]), reply_markup=reply_markup)
+        if temp['content'][nx] is 'False':
+            update.callback_query.message.reply_text('Cuenta: '+ str(temp['user name'][nx]), reply_markup=reply_markup)
         else:
-            update.callback_query.message.reply_text('Cuenta: '+ str(temp['user name'][x]) + '\n' + temp['content'][x], reply_markup=reply_markup)
+            update.callback_query.message.reply_text('Cuenta: '+ str(temp['user name'][nx]) + '\n' + temp['content'][nx], reply_markup=reply_markup)
     
     
 
@@ -154,12 +161,17 @@ def post_fun(update,context, data, fd):
 
     ix, temp = clasificacion_data(data, fd[0], fd[1])
     
-    final = ix[-1]
-    x = iter(ix)
+    
+    # Saving in temporal Class
+    pt.ix = iter(ix)
+    pt.temp = temp
+    pt.last = ix[-1]
+    
+
     next_fun(update, context, 
-                        next(x), temp, final)
-    print('next func cumplida')
-    return x, temp, final
+                        next(pt.ix), pt.temp, pt.last)
+    
+    
    
 
 
@@ -192,19 +204,15 @@ def menu(update, context):
 
 # This is bad, but it's just a propotype after, I will Fix this Chorizo!
 
-def progresivo(update,context, x, temp, final):
-    print("entramos")
+def progresivo(update,context):
     
-    next_fun(next(x))
-
-def desayuno(update, context):
-
-    x, temp, final = post_fun(update,context, data, fd.desayuno)
-
-    return x = x
-        
-        # next_fun(next(x))
+    if pt.ix == 0: return menu(update, context)
     
+    next_fun(update, context, 
+                        next(pt.ix), pt.temp, pt.last)
+
+
+def desayuno(update, context):  post_fun(update,context,data, fd.desayuno)
 def gourmet(update, context):   post_fun(update,context,data, fd.gourmet)
 def gourmet(update, context):   post_fun(update,context,data, fd.gourmet)
 def chatarra(update, context):  post_fun(update,context,data, fd.chatarra)
@@ -233,7 +241,7 @@ def main():
     dp.add_handler(CommandHandler("soporte", soporte))
     
     #  Bottons Commander 
-    dp.add_handler(CallbackQueryHandler(progresivo, pattern='^next$'))
+    dp.add_handler(CallbackQueryHandler(progresivo, pattern='^next_fun$'))
     dp.add_handler(CallbackQueryHandler(desayuno, pattern='^desayuno$'))
     dp.add_handler(CallbackQueryHandler(gourmet,  pattern='^gourmet$'))
     dp.add_handler(CallbackQueryHandler(postre,   pattern='^postre$'))
