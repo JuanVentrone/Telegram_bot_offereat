@@ -46,14 +46,6 @@ try:
 except IndexError:
     chat_id = 0
 
-    
-# def prueba(update, context):
-        
-        
-        
-#         update.callback_query.message.reply_text('Message of the day')
-#         context.bot.send_photo(chat_id=update.effective_chat.id, photo = open( 'ig_scrapper/database/images/image0.jpg','rb'))
-
 ####################################################################################################################
 
 def mini_menu(update,context):
@@ -79,20 +71,6 @@ def second_menu(update,context):
     ]
     
     return keyboard
-#######################################################################################
-# def start(update,context):
-    
-#     keyboard = [
-        
-#         [InlineKeyboardButton("🍔🍟Combos🍪🥤", callback_data='perro')]
-  
-#     ]
-#     reply_markup = InlineKeyboardMarkup(keyboard)
-
-#     update.message.reply_text('Hola '+str(update.message.chat.username)+'''Soy un Bot que trae ofertas de difrentes restaurantes en Valencia. 
-#     Si quieres Mas selecciona /menu
-#     Mayor Informacion de este Bot /soporte''', reply_markup=reply_markup)
-############################################################################################
 
 def start(update, context):
 
@@ -126,7 +104,8 @@ def next_fun( update, context,
     else:
         context.bot.send_photo(chat_id=update.effective_chat.id, photo = open( ruta + str(temp['img name'][nx]),'rb'))
         
-        if temp['ws'][nx] is 'False':
+        if (temp['ws'][nx] is 'False') | (temp['ws'][nx] is False):
+            
             keyboard = [
                 
             [InlineKeyboardButton("Instagram", url=url_ig)],
@@ -149,8 +128,9 @@ def next_fun( update, context,
             
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        # some Items doesn't have content
-        if temp['content'][nx] is 'False':
+        # Some Items doesn't have content
+
+        if temp['content'][nx] is 'False' | (temp['content'][nx] is False):
             update.callback_query.message.reply_text('Cuenta: '+ str(temp['user name'][nx]), reply_markup=reply_markup)
         else:
             update.callback_query.message.reply_text('Cuenta: '+ str(temp['user name'][nx]) + '\n' + temp['content'][nx], reply_markup=reply_markup)
@@ -163,6 +143,7 @@ def post_fun(update,context, data, fd):
     
     
     # Saving in temporal Class
+
     pt.ix = iter(ix)
     pt.temp = temp
     pt.last = ix[-1]
@@ -179,9 +160,7 @@ def post(update, context):
     
     context.bot.send_photo(chat_id=update.effective_chat.id, photo = open( 'ig_scrapper/database/images/image0.jpg','rb'))
     update.message.reply_text(data['content'][0])
-    
-    # context.bot.send_photo(chat_id=update.effective_chat.id, photo = data['img url'][0])
-    #  '\n <a href="t.me/telegram">t.me/telegram</a>'
+ 
 
 def soporte(update, context):
     
@@ -202,7 +181,6 @@ def menu(update, context):
     except:
         update.callback_query.message.reply_text('Para Mayor Informacion /soporte', reply_markup=reply_markup)
 
-# This is bad, but it's just a propotype after, I will Fix this Chorizo!
 
 def progresivo(update,context):
     
@@ -211,7 +189,7 @@ def progresivo(update,context):
     next_fun(update, context, 
                         next(pt.ix), pt.temp, pt.last)
 
-
+# This is bad, but it's just a propotype after, I will Fix this Chorizo!
 def desayuno(update, context):  post_fun(update,context,data, fd.desayuno)
 def gourmet(update, context):   post_fun(update,context,data, fd.gourmet)
 def gourmet(update, context):   post_fun(update,context,data, fd.gourmet)
@@ -250,12 +228,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(cumple,   pattern='^cumple$'))
     dp.add_handler(CallbackQueryHandler(pasapalo, pattern='^pasapalo$'))
     dp.add_handler(CallbackQueryHandler(menu,     pattern='^menu_$'))
-    
-    # dp.add_handler(CallbackQueryHandler(prueba, pattern='^perro$'))
-
-    # on noncommand i.e message - echo the message on Telegram
-    # dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
-
+  
     # Start the Bot
     updater.start_polling()
 
@@ -268,4 +241,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
